@@ -3,6 +3,8 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Contract } from "./pages/Contract";
 import { Home } from "./pages/Home";
+import { DetailContract } from "./pages/DetailContract";
+
 export const App = () => {
   return (
     <div className="flex flex-col bg-primary">
@@ -10,6 +12,7 @@ export const App = () => {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/contract" element={<Contract />} />
+          <Route path="/contract/:id" element={<DetailContract />} />
         </Routes>
         <ToastContainer
           position="top-right"
@@ -21,7 +24,7 @@ export const App = () => {
           pauseOnFocusLoss
           draggable
           pauseOnHover
-          theme="light"
+          theme="dark"
         />
       </Router>
     </div>

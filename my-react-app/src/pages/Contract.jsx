@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import getContract from "../lib/contract";
+import { Link } from "react-router-dom";
+import { getContract } from "../lib/contract";
 
 export const Contract = () => {
   const [contracts, setContracts] = useState(null);
@@ -136,25 +137,35 @@ export const Contract = () => {
           {contracts?.map((contract) => (
             <div
               key={contract.id}
-              className={`rounded-xl border p-6 transition-all duration-300 hover:shadow-lg ${getStatusStyles(
+              className={`rounded-xl border p-6 transition-all duration-300 hover:shadow-lg flex flex-col h-full justify-between ${getStatusStyles(
                 contract.status
               )}`}
             >
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-semibold text-slate-800">
-                  {contract.title}
-                </h2>
-                <span
-                  className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset ${getStatusBadgeStyles(
-                    contract.status
-                  )}`}
-                >
-                  {contract.status}
-                </span>
+              <div className="flex-1">
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-xl font-semibold text-slate-800">
+                    {contract.title}
+                  </h2>
+                  <span
+                    className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset ${getStatusBadgeStyles(
+                      contract.status
+                    )}`}
+                  >
+                    {contract.status}
+                  </span>
+                </div>
+                <p className="text-slate-600 mb-6 line-clamp-3">
+                  {contract.description}
+                </p>
               </div>
-              <p className="text-slate-600 mb-4 line-clamp-3">
-                {contract.description}
-              </p>
+              <Link
+                to={`/contract/${contract.id}`}
+                className="block w-full mt-auto"
+              >
+                <button className="w-full bg-indigo-600 text-white py-2.5 px-4 rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                  Voir le contrat
+                </button>
+              </Link>
             </div>
           ))}
         </div>
