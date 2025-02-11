@@ -49,4 +49,69 @@ const getContractById = async (id) => {
   }
 };
 
-export { getContract, getContractById };
+const createContract = async (contractData) => {
+  try {
+    // Validate form data
+    if (!contractData.title?.trim()) {
+      throw new Error("Title is required");
+    }
+    if (!contractData.description?.trim()) {
+      throw new Error("Description is required");
+    }
+    if (!contractData.reward?.trim()) {
+      throw new Error("Reward is required");
+    }
+
+    const response = await fetch("http://localhost:3000/api/contracts/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...contractData,
+        status: "Available",
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to create contract");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error creating contract:", error);
+    throw error;
+  }
+};
+
+const updateContract = async (id, contractData) => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/contracts/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...contractData,
+        updatedAt: new Date().toISOString(),
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update contract");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error updating contract:", error);
+    throw error;
+  }
+};
+
+export { getContract, getContractById, createContract, updateContract };

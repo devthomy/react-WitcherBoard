@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getContractById } from "../lib/contract";
+import { getContractById } from "../../lib/contract";
+import { Error } from "../../components/Error";
+import { Loading } from "../../components/Loading";
 
 export const DetailContract = () => {
   const { id } = useParams();
@@ -24,19 +26,11 @@ export const DetailContract = () => {
   }, [id]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-indigo-600" />
-      </div>
-    );
+    return <Loading />;
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center gap-4">
-        <div className="text-red-500 text-xl font-semibold">Error: {error}</div>
-      </div>
-    );
+    return <Error message={error} />;
   }
 
   const getStatusBadgeStyles = (status) => {
@@ -57,9 +51,14 @@ export const DetailContract = () => {
       <div className="w-full max-w-7xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg p-8 mb-8">
           <div className="flex justify-between items-start mb-6">
-            <h1 className="text-4xl font-bold text-slate-800">
-              {contract?.title}
-            </h1>
+            <div>
+              <h1 className="text-4xl font-bold text-slate-800">
+                {contract?.title}
+              </h1>
+              <p className="text-2xl font-semibold text-indigo-600 mt-2">
+                ${contract?.reward}
+              </p>
+            </div>
             <span
               className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset ${getStatusBadgeStyles(
                 contract?.status
@@ -77,12 +76,12 @@ export const DetailContract = () => {
 
           <div className="mt-8 pt-8 border-t border-slate-200">
             <h2 className="text-xl font-semibold text-slate-800 mb-4">
-              Détails du contrat
+              Contract details
             </h2>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <dt className="text-sm font-medium text-slate-500">
-                  Date de création
+                  Creation date
                 </dt>
                 <dd className="text-base text-slate-900">
                   {new Date(contract?.createdAt).toLocaleDateString()}
@@ -90,7 +89,7 @@ export const DetailContract = () => {
               </div>
               <div>
                 <dt className="text-sm font-medium text-slate-500">
-                  Dernière modification
+                  Last modification
                 </dt>
                 <dd className="text-base text-slate-900">
                   {new Date(contract?.updatedAt).toLocaleDateString()}
@@ -103,14 +102,14 @@ export const DetailContract = () => {
         <div className="flex justify-end gap-4">
           <Link to="/contract">
             <button className="bg-indigo-600 text-white py-2.5 px-6 rounded-lg hover:bg-indigo-700 transition-colors font-medium">
-              Retour aux contrats
+              Back to contracts
             </button>
           </Link>
 
           {contract?.status === "Available" && (
             <div className="flex justify-end">
               <button className="bg-indigo-600 text-white py-2.5 px-6 rounded-lg hover:bg-indigo-700 transition-colors font-medium">
-                Postuler pour ce contrat
+                Apply for this contract
               </button>
             </div>
           )}
