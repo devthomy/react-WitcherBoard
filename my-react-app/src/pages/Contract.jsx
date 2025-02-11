@@ -5,11 +5,17 @@ export const Contract = () => {
   const [contracts, setContracts] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [titleFilter, setTitleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   useEffect(() => {
     const fetchContracts = async () => {
       try {
-        const data = await getContract();
+        const queryParams = new URLSearchParams();
+        if (titleFilter) queryParams.append("title", titleFilter);
+        if (statusFilter) queryParams.append("status", statusFilter);
+
+        const data = await getContract(queryParams);
         setContracts(data);
       } catch (err) {
         setError(err.message);
@@ -19,7 +25,7 @@ export const Contract = () => {
       }
     };
     fetchContracts();
-  }, []);
+  }, [titleFilter, statusFilter]);
 
   if (isLoading) {
     return (
@@ -69,6 +75,63 @@ export const Contract = () => {
         <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-slate-800 sm:text-5xl md:text-6xl text-center mb-12">
           Available Contracts
         </h1>
+
+        <div className="mb-8 flex flex-col sm:flex-row gap-6">
+          <div className="flex-1">
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-slate-700 mb-2"
+            >
+              Titre
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                id="title"
+                value={titleFilter}
+                onChange={(e) => setTitleFilter(e.target.value)}
+                className="w-full rounded-lg border border-slate-300 py-2.5 pl-4 pr-10 shadow-sm placeholder:text-slate-400 text-slate-800 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+                placeholder="Rechercher un contrat..."
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                  />
+                </svg>
+              </span>
+            </div>
+          </div>
+          <div className="flex-1">
+            <label
+              htmlFor="status"
+              className="block text-sm font-medium text-slate-700 mb-2"
+            >
+              Statut
+            </label>
+            <select
+              id="status"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full rounded-lg border border-slate-300 py-2.5 px-4 shadow-sm text-slate-800 transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none appearance-none bg-white cursor-pointer"
+            >
+              <option value="">Tous les statuts</option>
+              <option value="Available">Disponible</option>
+              <option value="Assigned">Assigné</option>
+              <option value="Completed">Terminé</option>
+            </select>
+          </div>
+        </div>
+
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {contracts?.map((contract) => (
             <div

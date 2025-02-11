@@ -1,8 +1,12 @@
 import { toast } from "react-toastify";
 
-const getContract = async () => {
+const getContract = async (queryParams) => {
   try {
-    const response = await fetch("http://localhost:3000/api/contracts", {
+    const url = `http://localhost:3000/api/contracts${
+      queryParams ? `?${queryParams}` : ""
+    }`;
+
+    const response = await fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
