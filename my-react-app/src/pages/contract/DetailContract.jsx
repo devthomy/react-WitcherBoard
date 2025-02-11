@@ -1,14 +1,43 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getContractById } from "../../lib/contract";
+import {
+  assignContract,
+  completeContract,
+  getContractById,
+} from "../../lib/contract";
 import { Error } from "../../components/Error";
 import { Loading } from "../../components/Loading";
+import { useWitcher } from "../../context/WitcherContext";
+import { toast } from "react-toastify";
 
 export const DetailContract = () => {
   const { id } = useParams();
   const [contract, setContract] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { currentWitcher } = useWitcher();
+
+  const handleApply = async (contractId) => {
+    try {
+      await assignContract(contractId, currentWitcher.id);
+      toast.success("Contract assigned successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error assigning contract:", error);
+      toast.error(error.message || "Failed to assign contract");
+    }
+  };
+
+  const handleComplete = async (contractId) => {
+    try {
+      await completeContract(contractId);
+      toast.success("Contract completed successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error completing contract:", error);
+      toast.error(error.message || "Failed to complete contract");
+    }
+  };
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -108,11 +137,25 @@ export const DetailContract = () => {
 
           {contract?.status === "Available" && (
             <div className="flex justify-end">
-              <button className="bg-indigo-600 text-white py-2.5 px-6 rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+              <button
+                onClick={() => handleApply(contract.id)}
+                className="bg-indigo-600 text-white py-2.5 px-6 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+              >
                 Apply for this contract
               </button>
             </div>
           )}
+          {currentWitcher &&
+            contract.status === "Assigned" &&
+            contract.assignedTo === currentWitcher.id && (
+              <button
+                className="bg-indigo-600 text-white py-2.5 px-6 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                onClick={() => handleComplete(contract.id)}
+                disabled={!contract.id}
+              >
+                Complete Contract
+              </button>
+            )}
         </div>
       </div>
     </div>

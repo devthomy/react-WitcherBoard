@@ -1,7 +1,48 @@
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
+import { useWitcher } from "../context/WitcherContext";
+import { toast } from "react-toastify";
+import { assignContract, completeContract } from "../lib/contract";
 
 export const Card = ({ contract }) => {
+  const { currentWitcher } = useWitcher();
+
+  const handleApply = async (contractId) => {
+    try {
+      if (!currentWitcher?.id) {
+        toast.error("Please log in as a witcher first");
+        return;
+      }
+
+      await assignContract(contractId, currentWitcher.id);
+      toast.success("Contract assigned successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error assigning contract:", error);
+      toast.error(error.message || "Failed to assign contract");
+    }
+  };
+
+  const handleComplete = async (contractId) => {
+    try {
+      if (!currentWitcher?.id) {
+        toast.error("Please log in as a witcher first");
+        return;
+      }
+
+      if (!contractId) {
+        throw new Error("No contract ID provided");
+      }
+
+      await completeContract(contractId);
+      toast.success("Contract completed successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error completing contract:", error);
+      toast.error(error.message || "Failed to complete contract");
+    }
+  };
+
   const getStatusStyles = (status) => {
     switch (status) {
       case "Available":
@@ -53,7 +94,7 @@ export const Card = ({ contract }) => {
       </div>
       <div className="flex flex-col justify-between items-center gap-2">
         <Link to={`/contract/${contract.id}`} className="block w-full mt-auto">
-          <button className="w-full text-white py-2.5 px-4 rounded-lg  transition-colors font-medium">
+          <button className="w-full bg-slate-700 hover:bg-slate-800 text-white py-2.5 px-4 rounded-lg transition-colors font-medium">
             View Contract
           </button>
         </Link>
@@ -61,10 +102,30 @@ export const Card = ({ contract }) => {
           to={`/contract/edit/${contract.id}`}
           className="block w-full mt-auto"
         >
-          <button className="w-full text-white py-2.5 px-4 rounded-lg transition-colors font-medium">
-            Edit{" "}
+          <button className="w-full bg-slate-700 hover:bg-slate-800 text-white py-2.5 px-4 rounded-lg transition-colors font-medium">
+            Edit
           </button>
         </Link>
+        {currentWitcher && contract.status === "Available" && (
+          <button
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-4 rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => handleApply(contract.id)}
+            disabled={!currentWitcher?.id || contract.status !== "Available"}
+          >
+            Assign for this contract
+          </button>
+        )}
+        {currentWitcher &&
+          contract.status === "Assigned" &&
+          contract.assignedTo === currentWitcher.id && (
+            <button
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white py-2.5 px-4 rounded-lg transition-colors font-medium"
+              onClick={() => handleComplete(contract.id)}
+              disabled={!contract.id}
+            >
+              Complete Contract
+            </button>
+          )}
       </div>
     </div>
   );
@@ -76,5 +137,6 @@ Card.propTypes = {
     title: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     status: PropTypes.oneOf(["Available", "Assigned", "Completed"]).isRequired,
+    assignedTo: PropTypes.string,
   }).isRequired,
 };

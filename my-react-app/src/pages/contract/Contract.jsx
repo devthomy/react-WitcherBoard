@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getContract } from "../../lib/contract";
 import { Card } from "../../components/Card";
 import { Error } from "../../components/Error";
 import { Loading } from "../../components/Loading";
-import Wizard from "../../assets/wizard.webp";
+import { getContract } from "../../lib/contract";
+
 export const Contract = () => {
   const [contracts, setContracts] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,10 +42,6 @@ export const Contract = () => {
   return (
     <div className="min-h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <div className="w-full max-w-7xl mx-auto">
-        <div className="flex justify-center items-center">
-          <img src={Wizard} alt="logo" className="w-48 h-48" />
-        </div>
-
         <div className="mb-8 flex flex-col sm:flex-row gap-6 mt-10">
           <div className="flex-1">
             <label

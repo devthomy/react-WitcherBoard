@@ -1,5 +1,3 @@
-import { toast } from "react-toastify";
-
 const getContract = async (queryParams) => {
   try {
     const url = `http://localhost:3000/api/contracts${
@@ -16,7 +14,6 @@ const getContract = async (queryParams) => {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    toast.success("Contracts fetched successfully" + queryParams);
 
     const data = await response.json();
     return data;
@@ -39,7 +36,6 @@ const getContractById = async (id) => {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    toast.success("Contract fetched successfully");
 
     const data = await response.json();
     return data;
@@ -51,7 +47,6 @@ const getContractById = async (id) => {
 
 const createContract = async (contractData) => {
   try {
-    // Validate form data
     if (!contractData.title?.trim()) {
       throw new Error("Title is required");
     }
@@ -114,4 +109,88 @@ const updateContract = async (id, contractData) => {
   }
 };
 
-export { getContract, getContractById, createContract, updateContract };
+const assignContract = async (contractId, witcherId) => {
+  try {
+    if (!contractId || !witcherId) {
+      throw new Error("Contract ID and Witcher ID are required");
+    }
+
+    const response = await fetch(
+      `http://localhost:3000/api/contracts/${contractId}/assignedTo`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(witcherId),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+
+      if (response.status === 400) {
+        if (errorData.message === "Contract already completed.") {
+          throw new Error("Contract already completed");
+        } else if (
+          errorData.message === "Contract already assigned to another Witcher."
+        ) {
+          throw new Error("Contract already assigned to another Witcher");
+        } else if (errorData.message === "Unknown witcher.") {
+          throw new Error("Unknown witcher");
+        } else {
+          throw new Error("Contract with bad status");
+        }
+      }
+
+      if (response.status === 404) {
+        throw new Error("Contract not found");
+      }
+
+      throw new Error(
+        errorData.message || `Failed to assign contract: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error assigning contract:", error);
+    throw error;
+  }
+};
+
+const completeContract = async (contractId) => {
+  try {
+    const response = await fetch(
+      `http://localhost:3000/api/contracts/${contractId}/status`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify("Completed"),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to complete contract");
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error completing contract:", error);
+    throw error;
+  }
+};
+
+export {
+  getContract,
+  getContractById,
+  createContract,
+  updateContract,
+  assignContract,
+  completeContract,
+};
